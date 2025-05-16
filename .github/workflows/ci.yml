@@ -90,7 +90,18 @@ jobs:
       - name: Build and start Docker environment
         run: |
           docker compose -f docker-compose.yml up -d --build
+        env:
+            LOGFLARE_LOGGER_BACKEND_API_KEY: ${{ secrets.LOGFLARE_LOGGER_BACKEND_API_KEY }}
+            LOGFLARE_API_KEY: ${{ secrets.LOGFLARE_API_KEY }}
 
+            DASHBOARD_USERNAME: ${{ secrets.DASHBOARD_USERNAME }}
+            DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
+
+            JWT_SECRET: ${{ secrets.JWT_SECRET }}
+            ANON_KEY: ${{ secrets.ANON_KEY }}
+            SERVICE_ROLE_KEY: ${{ secrets.SERVICE_ROLE_KEY }}
+
+            DOCKER_SOCKET_LOCATION: ${{secrets.DOCKER_SOCKET_LOCATION}}
 
       - name: Scan all Compose files with Checkov
         uses: bridgecrewio/checkov-action@master
