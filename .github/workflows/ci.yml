@@ -74,7 +74,7 @@ jobs:
 
       - name: Build and start Docker environment
         run: |
-          docker compose -f docker-compose.yml up -d --build
+          docker compose -f docker-compose.yml -f ./dev/docker-compose.dev.yml up
         env:
             LOGFLARE_LOGGER_BACKEND_API_KEY: ${{ secrets.LOGFLARE_LOGGER_BACKEND_API_KEY }}
             LOGFLARE_API_KEY: ${{ secrets.LOGFLARE_API_KEY }}
