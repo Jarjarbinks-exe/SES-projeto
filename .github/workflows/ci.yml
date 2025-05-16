@@ -29,23 +29,17 @@ jobs:
   devsecops:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:15
-        ports:
-          - 5432:5432
-        env:
-            POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-            POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+
+      - name: Start PostgreSQL manually
+        run: |
+          docker run -d \
+            -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+            -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
+            -p 5432:5432 \
+            --name pgci postgres:15
 
       - name: Install React dependencies
         run: npm install
@@ -92,3 +86,7 @@ jobs:
         with:
           directory: .
           quiet: true
+
+      - name: Cleanup Postgres container
+        if: always()
+        run: docker rm -f pgci || true
