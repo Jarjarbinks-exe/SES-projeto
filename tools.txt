@@ -1,0 +1,5 @@
+Secret Leaks: gitleaks
+Environment variable scanning:
+RBAC policies auditing:
+Database schema change checks (e.g., via migration files):
+Security scans on your SQL migrations using tools like sqlfluff.

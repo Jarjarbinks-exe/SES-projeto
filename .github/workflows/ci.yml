@@ -1,0 +1,100 @@
+name: DevSecOps for React + Supabase (Docker)
+
+on:
+  push:
+    branches: [main, BigBang, test/devsecops]
+  pull_request:
+    branches: [main, BigBang, test/devsecops]
+
+env:
+    REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+    REACT_APP_SUPABASE_ANON_KEY: ${{secrets.REACT_APP_SUPABASE_ANON_KEY}}
+
+    LOGFLARE_LOGGER_BACKEND_API_KEY: ${{secrets.LOGFLARE_LOGGER_BACKEND_API_KEY}}
+    LOGFLARE_API_KEY: ${{secrets.LOGFLARE_API_KEY}}
+
+    POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
+    POSTGRES_DB: ${{secrets.POSTGRES_DB}}
+    POSTGRES_HOST: ${{secrets.POSTGRES_HOST}}
+    POSTGRES_PORT: ${{secrets.POSTGRES_PORT}}
+
+    DASHBOARD_USERNAME: ${{secrets.DASHBOARD_USERNAME}}
+    DASHBOARD_PASSWORD: ${{secrets.DASHBOARD_PASSWORD}}
+
+    JWT_SECRET: ${{secrets.JWT_SECRET}}
+    ANON_KEY: ${{secrets.ANON_KEY}}
+    SERVICE_ROLE_KEY: ${{secrets.SERVICE_ROLE_KEY}}
+
+
+jobs:
+  devsecops:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+    # Install dependencies
+     - name: Install React dependencies
+        run: npm install
+        working-directory: ./writeup
+
+    # Run the build
+     - name: Run React build
+        run: npm run build
+        working-directory: ./writeup
+
+    # Install sqlfluff
+      - name: Set up Python (for sqlfluff)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install sqlfluff
+        run: pip install sqlfluff
+
+    # Run sqlfluff over db structure
+      - name: Lint data.sql with sqlfluff
+        run: sqlfluff lint dev/data.sql --dialect postgres
+
+    # Scan repository version control for leaked secrets
+      - name: Scan for secrets with Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: --verbose --redact
+
+    # Inject a .env for docker
+    - name: Create .env for Docker Compose
+        run: |
+          echo "REACT_APP_SUPABASE_URL=${REACT_APP_SUPABASE_URL}" >> .env
+          echo "REACT_APP_SUPABASE_ANON_KEY=${REACT_APP_SUPABASE_ANON_KEY}" >> .env
+          echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" >> .env
+          echo "POSTGRES_DB=${POSTGRES_DB}" >> .env
+          echo "POSTGRES_HOST=${POSTGRES_HOST}" >> .env
+          echo "POSTGRES_PORT=${POSTGRES_PORT}" >> .env
+          echo "JWT_SECRET=${JWT_SECRET}" >> .env
+          echo "ANON_KEY=${ANON_KEY}" >> .env
+          echo "SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}" >> .env
+
+    # Test building the docker env
+      - name: Build and start Docker environment
+        run: |
+          docker-compose -f docker-compose.yml up -d --build
+
+    # Scan IaaS code
+      - name: Scan all Compose files with Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          quiet: true
