@@ -46,11 +46,11 @@ jobs:
 
       - name: Install React dependencies
         run: npm install
-        working-directory: ./SES-projeto/writeup
+        working-directory: ./writeup
 
       - name: Run React build
         run: npm run build
-        working-directory: ./SES-projeto/writeup
+        working-directory: ./writeup
 
       - name: Set up Python (for sqlfluff)
         uses: actions/setup-python@v5
