@@ -76,15 +76,20 @@ jobs:
         run: |
           docker compose -f docker-compose-ci.yml -f ./dev/docker-compose.dev.yml up
         env:
-            LOGFLARE_LOGGER_BACKEND_API_KEY: ${{ secrets.LOGFLARE_LOGGER_BACKEND_API_KEY }}
-            LOGFLARE_API_KEY: ${{ secrets.LOGFLARE_API_KEY }}
+            POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+            POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+            POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+            POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
 
             DASHBOARD_USERNAME: ${{ secrets.DASHBOARD_USERNAME }}
             DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
 
             JWT_SECRET: ${{ secrets.JWT_SECRET }}
             ANON_KEY: ${{ secrets.ANON_KEY }}
+
             SERVICE_ROLE_KEY: ${{ secrets.SERVICE_ROLE_KEY }}
+            LOGFLARE_LOGGER_BACKEND_API_KEY: ${{ secrets.LOGFLARE_LOGGER_BACKEND_API_KEY }}
+            LOGFLARE_API_KEY: ${{ secrets.LOGFLARE_API_KEY }}
 
             DOCKER_SOCKET_LOCATION: /var/run/docker.sock
             POOLER_PROXY_PORT_TRANSACTION: ${{ secrets.POOLER_PROXY_PORT_TRANSACTION }}
