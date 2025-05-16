@@ -101,7 +101,7 @@ jobs:
             ANON_KEY: ${{ secrets.ANON_KEY }}
             SERVICE_ROLE_KEY: ${{ secrets.SERVICE_ROLE_KEY }}
 
-            DOCKER_SOCKET_LOCATION: ${{secrets.DOCKER_SOCKET_LOCATION}}
+            DOCKER_SOCKET_LOCATION: DOCKER_SOCKET_LOCATION=/var/run/docker.sock
 
       - name: Scan all Compose files with Checkov
         uses: bridgecrewio/checkov-action@master
