@@ -84,7 +84,8 @@ jobs:
 
       - name: Build and start Docker environment
         run: |
-          docker-compose -f docker-compose.yml up -d --build
+          docker compose -f docker-compose.yml up -d --build
+
 
       - name: Scan all Compose files with Checkov
         uses: bridgecrewio/checkov-action@master
