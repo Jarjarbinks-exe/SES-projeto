@@ -7,24 +7,23 @@ on:
     branches: [main, BigBang, test/devsecops]
 
 env:
-    REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
-    REACT_APP_SUPABASE_ANON_KEY: ${{secrets.REACT_APP_SUPABASE_ANON_KEY}}
+  REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+  REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
 
-    LOGFLARE_LOGGER_BACKEND_API_KEY: ${{secrets.LOGFLARE_LOGGER_BACKEND_API_KEY}}
-    LOGFLARE_API_KEY: ${{secrets.LOGFLARE_API_KEY}}
+  LOGFLARE_LOGGER_BACKEND_API_KEY: ${{ secrets.LOGFLARE_LOGGER_BACKEND_API_KEY }}
+  LOGFLARE_API_KEY: ${{ secrets.LOGFLARE_API_KEY }}
 
-    POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
-    POSTGRES_DB: ${{secrets.POSTGRES_DB}}
-    POSTGRES_HOST: ${{secrets.POSTGRES_HOST}}
-    POSTGRES_PORT: ${{secrets.POSTGRES_PORT}}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+  POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+  POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
 
-    DASHBOARD_USERNAME: ${{secrets.DASHBOARD_USERNAME}}
-    DASHBOARD_PASSWORD: ${{secrets.DASHBOARD_PASSWORD}}
+  DASHBOARD_USERNAME: ${{ secrets.DASHBOARD_USERNAME }}
+  DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
 
-    JWT_SECRET: ${{secrets.JWT_SECRET}}
-    ANON_KEY: ${{secrets.ANON_KEY}}
-    SERVICE_ROLE_KEY: ${{secrets.SERVICE_ROLE_KEY}}
-
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+  ANON_KEY: ${{ secrets.ANON_KEY }}
+  SERVICE_ROLE_KEY: ${{ secrets.SERVICE_ROLE_KEY }}
 
 jobs:
   devsecops:
@@ -45,17 +44,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-    # Install dependencies
-     - name: Install React dependencies
+      - name: Install React dependencies
         run: npm install
         working-directory: ./writeup
 
-    # Run the build
-     - name: Run React build
+      - name: Run React build
         run: npm run build
         working-directory: ./writeup
 
-    # Install sqlfluff
       - name: Set up Python (for sqlfluff)
         uses: actions/setup-python@v5
         with:
@@ -64,18 +60,15 @@ jobs:
       - name: Install sqlfluff
         run: pip install sqlfluff
 
-    # Run sqlfluff over db structure
       - name: Lint data.sql with sqlfluff
         run: sqlfluff lint dev/data.sql --dialect postgres
 
-    # Scan repository version control for leaked secrets
       - name: Scan for secrets with Gitleaks
         uses: gitleaks/gitleaks-action@v2
         with:
           args: --verbose --redact
 
-    # Inject a .env for docker
-    - name: Create .env for Docker Compose
+      - name: Create .env for Docker Compose
         run: |
           echo "REACT_APP_SUPABASE_URL=${REACT_APP_SUPABASE_URL}" >> .env
           echo "REACT_APP_SUPABASE_ANON_KEY=${REACT_APP_SUPABASE_ANON_KEY}" >> .env
@@ -87,12 +80,10 @@ jobs:
           echo "ANON_KEY=${ANON_KEY}" >> .env
           echo "SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}" >> .env
 
-    # Test building the docker env
       - name: Build and start Docker environment
         run: |
           docker-compose -f docker-compose.yml up -d --build
 
-    # Scan IaaS code
       - name: Scan all Compose files with Checkov
         uses: bridgecrewio/checkov-action@master
         with:
