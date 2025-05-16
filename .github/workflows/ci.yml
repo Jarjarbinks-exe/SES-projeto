@@ -25,6 +25,8 @@ env:
   ANON_KEY: ${{ secrets.ANON_KEY }}
   SERVICE_ROLE_KEY: ${{ secrets.SERVICE_ROLE_KEY }}
 
+  DOCKER_SOCKET_LOCATION: ${{secrets.DOCKER_SOCKET_LOCATION}}
+
 jobs:
   devsecops:
     runs-on: ubuntu-latest
@@ -81,6 +83,9 @@ jobs:
           echo "JWT_SECRET=${JWT_SECRET}" >> .env
           echo "ANON_KEY=${ANON_KEY}" >> .env
           echo "SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}" >> .env
+          echo "DOCKER_SOCKET_LOCATION=${{DOCKER_SOCKET_LOCATION}}" >> .env
+          echo "LOGFLARE_API_KEY=${{LOGFLARE_API_KEY}}" >> .env
+          echo "LOGFLARE_LOGGER_BACKEND_API_KEY=${{LOGFLARE_LOGGER_BACKEND_API_KEY}}" >> .env
 
       - name: Build and start Docker environment
         run: |
