@@ -1,0 +1,13 @@
+# ./vector/vector.yml
+sources:
+  internal_logs:
+    type: internal_logs
+
+sinks:
+  stdout:
+    type: console
+    inputs:
+      - internal_logs
+    encoding:
+      codec: json
+
