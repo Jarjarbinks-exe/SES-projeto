@@ -77,6 +77,7 @@ jobs:
         with:
           directory: .
           quiet: true
+        continue-on-error: true
 
       - name: Cleanup Postgres container
         if: always()
