@@ -74,10 +74,15 @@ jobs:
 
       - name: Build and start Docker environment
         run: |
-          docker compose -f docker-compose-ci.yml -f ./dev/docker-compose.dev.yml up
+          docker compose -f ./dev/docker-compose.dev.yml -f docker-compose-ci.yml up
+
         env:
             POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+            PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+
             POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+            PGDATABASE: ${{ secrets.POSTGRES_DB }}
+
             POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
             POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
 
@@ -119,6 +124,8 @@ jobs:
             ENABLE_PHONE_AUTOCONFIRM: ${{ secrets.ENABLE_PHONE_AUTOCONFIRM }}
             FUNCTIONS_VERIFY_JWT: ${{ secrets.FUNCTIONS_VERIFY_JWT }}
             
+            REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+            REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
 
 
       - name: Scan all Compose files with Checkov
