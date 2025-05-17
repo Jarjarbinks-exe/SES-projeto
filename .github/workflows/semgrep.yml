@@ -7,6 +7,7 @@ on:
       - main
       - master
       - BigBang
+      - test/devsecops
     paths:
       - .github/workflows/semgrep.yml
   schedule:
