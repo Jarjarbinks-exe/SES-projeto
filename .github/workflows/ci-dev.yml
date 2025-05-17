@@ -62,7 +62,7 @@ jobs:
         run: npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
         
       - name: Run ESLint with Security Rules
-        run: npx eslint src --ext .ts,.tsx,.js ,.jsx
+        run: npx eslint writeup --ext .ts,.tsx,.js ,.jsx
 
       - name: Install sqlfluff
         run: pip install sqlfluff
