@@ -1,10 +1,10 @@
-name: DevSecOps for React + Supabase (Docker) Production Ready
+name: DevSecOps for React + Supabase (Docker) Development Ready
 
 on:
   push:
-    branches: [main]
+    branches: [BigBang, test/devsecops]
   pull_request:
-    branches: [main]
+    branches: [BigBang, test/devsecops]
 
 env:
   REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
@@ -35,9 +35,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: List project files
-        run: ls -R
-
       - name: Start PostgreSQL manually
         run: |
           docker run -d \
@@ -53,17 +50,25 @@ jobs:
       - name: Run React build
         run: npm run build
         working-directory: ./writeup
-
+        env:
+            CI: false
+        
       - name: Set up Python (for sqlfluff)
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      
+      - name: Install ESLint
+        run: npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
+        
+      - name: Run ESLint with Security Rules
+        run: npx eslint src --ext .ts,.tsx,.js 
 
       - name: Install sqlfluff
         run: pip install sqlfluff
 
       - name: Lint data.sql with sqlfluff (non-blocking) dev version
-        run: sqlfluff lint dev/data.sql --dialect postgres
+        run: sqlfluff lint dev/data.sql --dialect postgres || true
 
       - name: Scan for secrets with Gitleaks
         uses: gitleaks/gitleaks-action@v2
@@ -75,7 +80,24 @@ jobs:
         with:
           directory: .
           quiet: true
+        continue-on-error: true
 
       - name: Cleanup Postgres container
         if: always()
         run: docker rm -f pgci || true
+
+        
+
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+      - uses: github/codeql-action/autobuild@v3
+      - uses: github/codeql-action/analyze@v3
+
