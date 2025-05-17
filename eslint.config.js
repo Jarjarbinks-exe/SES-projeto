@@ -1,5 +1,6 @@
-module.exports = {
-  parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
-  extends: ['plugin:@typescript-eslint/recommended'],
-};
+// eslint.config.js (Flat Config)
+import tseslint from 'typescript-eslint';
+
+export default [
+  ...tseslint.configs.recommended,
+];
