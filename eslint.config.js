@@ -1,21 +1,7 @@
 // eslint.config.js
-import { configs } from '@typescript-eslint/eslint-plugin';
+// eslint.config.js (CommonJS version)
+const tseslint = require('typescript-eslint');
 
-export default [
-  {
-    files: ['**/*.ts', '**/*.tsx'],
-    languageOptions: {
-      parser: '@typescript-eslint/parser',
-      parserOptions: {
-        ecmaVersion: 2020,
-        sourceType: 'module',
-      },
-    },
-    plugins: {
-      '@typescript-eslint': require('@typescript-eslint/eslint-plugin'),
-    },
-    rules: {
-      ...configs.recommended.rules,
-    },
-  },
+module.exports = [
+  ...tseslint.configs.recommended,
 ];
