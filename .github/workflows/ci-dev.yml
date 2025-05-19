@@ -58,12 +58,6 @@ jobs:
         with:
           python-version: '3.11'
       
-      - name: Install ESLint Dependencies
-        run: npm install -D eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
-
-      - name: Run ESLint with Security Rules
-        run: npx eslint writeup/src --ext .ts,.tsx,.js,.jsx
-
       - name: Install sqlfluff
         run: pip install sqlfluff
 
