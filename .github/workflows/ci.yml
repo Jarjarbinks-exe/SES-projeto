@@ -1,0 +1,94 @@
+name: DevSecOps for React + Supabase (Docker) Production Ready
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+  REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+
+  LOGFLARE_LOGGER_BACKEND_API_KEY: ${{ secrets.LOGFLARE_LOGGER_BACKEND_API_KEY }}
+  LOGFLARE_API_KEY: ${{ secrets.LOGFLARE_API_KEY }}
+
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+  POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+  POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+
+  DASHBOARD_USERNAME: ${{ secrets.DASHBOARD_USERNAME }}
+  DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
+
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+  ANON_KEY: ${{ secrets.ANON_KEY }}
+  SERVICE_ROLE_KEY: ${{ secrets.SERVICE_ROLE_KEY }}
+
+  DOCKER_SOCKET_LOCATION: ${{secrets.DOCKER_SOCKET_LOCATION}}
+
+jobs:
+  devsecops:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: List project files
+        run: ls -R
+
+      - name: Start PostgreSQL manually
+        run: |
+          docker run -d \
+            -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+            -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
+            -p 5432:5432 \
+            --name pgci postgres:15
+
+      - name: Install React dependencies
+        run: npm install
+        working-directory: ./writeup
+
+      - name: Run React build
+        run: npm run build
+        working-directory: ./writeup
+
+      - name: Set up Python (for sqlfluff)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install sqlfluff
+        run: pip install sqlfluff
+
+      - name: Lint data.sql with sqlfluff (non-blocking) dev version
+        run: sqlfluff lint dev/data.sql --dialect postgres
+
+      - name: Scan for secrets with Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: --verbose --redact
+          
+      - name: Scan all Compose files with Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          quiet: true
+
+      - name: Cleanup Postgres container
+        if: always()
+        run: docker rm -f pgci || true
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+      - uses: github/codeql-action/autobuild@v3
+      - uses: github/codeql-action/analyze@v3
+

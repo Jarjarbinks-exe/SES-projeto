@@ -1,0 +1,13 @@
+# Docker
+volumes/
+*.log
+logs/
+
+# Node
+writeup/node_modules/
+
+# OS
+.DS_Store
+
+# ENV
+.env
