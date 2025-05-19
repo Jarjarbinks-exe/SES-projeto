@@ -58,9 +58,9 @@ jobs:
         with:
           python-version: '3.11'
       
-      - name: Install ESLint
-        run: npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
-        
+      - name: Install ESLint Dependencies
+        run: npm install -D eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
+
       - name: Run ESLint with Security Rules
         run: npx eslint writeup/src --ext .ts,.tsx,.js,.jsx
 
