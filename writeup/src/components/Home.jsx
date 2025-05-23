@@ -1,6 +1,8 @@
 import React from "react";
 import { UserAuth } from "../auth/AuthContext";
 import { useNavigate } from "react-router-dom";
+import CreateDocument from "./CreateDocument";
+import DocumentList from "./DocumentList";
 
 
 
@@ -22,10 +24,11 @@ const Home = () => {
     return (
         <div>
             <h1>Home</h1>
-
             {session ? (
                 <div>
                     <button onClick={handle_Signout}>Sign Out</button>
+                    <CreateDocument />
+                    <DocumentList />
                 </div>
             ) : (
                 <div>
