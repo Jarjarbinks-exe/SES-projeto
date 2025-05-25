@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { UserAuth } from '../auth/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function Document() {
     const { supabase } = UserAuth();
     const [title, setTitle] = useState('');
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleCreateDocument = async () => {
         setLoading(true);
@@ -36,6 +38,7 @@ export default function Document() {
             alert('Error creating document: ' + error.message);
         } else {
             alert('Document created!');
+            navigate(`/document/?id=${data.id}`);
         }
 
         setLoading(false);
