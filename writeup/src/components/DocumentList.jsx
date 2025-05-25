@@ -47,7 +47,7 @@ export default function DocumentList() {
                 <ul>
                     {documents.map((doc) => (
                         <li key={doc.id}>
-                            <Link to={`/document/${doc.id}`}>{doc.title}</Link>
+                            <Link to={`/document/?id=${doc.id}`}>{doc.title}</Link>
                         </li>
                     ))}
                 </ul>
